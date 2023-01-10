@@ -239,6 +239,18 @@ bool mujoco_init(MjSimImpl * mj_sim, const std::vector<std::string> & robots, co
   std::string model = merge_mujoco_models(robots, xmlFiles, mj_sim->robots);
   char error[1000] = "Could not load XML model";
   mj_sim->model = mj_loadXML(model.c_str(), 0, error, 1000);
+  //hacking
+  // mc_rtc::Configuration NLoops_cfg("/home/templarares/devel/src/bit-car-inout-controller/etc/NLoops.yaml");
+  // //mc_rtc::Configuration NLoops_cfg;
+  // int nloops=(int)NLoops_cfg("counter");  
+  // mj_sim->model->qpos_spring[41]=1.215+0.02*(random()/RAND_MAX-0.5)*(nloops/10000.0);
+  // for (int i=0;i<mj_sim->model->njnt;i++)
+  // {
+  //   if (mj_sim->model->jnt_stiffness[i]==8000)
+  //   {
+  //     mj_sim->model->jnt_stiffness[i]=8000+1000*(random()/RAND_MAX-0.5)*(nloops/10000.0);
+  //   }
+  // }
   if(!mj_sim->model)
   {
     std::cerr << error << std::endl;

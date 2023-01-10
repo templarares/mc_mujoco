@@ -21,7 +21,6 @@
 namespace bfs = boost::filesystem;
 
 #include <mc_rtc/version.h>
-
 namespace mc_mujoco
 {
 
@@ -365,6 +364,27 @@ void MjSimImpl::setSimulationInitialState()
       }
     }
   }
+  mc_rtc::Configuration NLoops_cfg("/home/templarares/devel/src/bit-car-inout-controller/etc/NLoops.yaml");
+  int nloops=(int)NLoops_cfg("counter");
+  srand(time(0)); 
+  // NLoops_cfg.add("counter",rand());
+  // NLoops_cfg.save("/home/templarares/devel/src/bit-car-inout-controller/etc/NLoops.yaml");
+  //model->qpos_spring[41]=1.215+0.1*(rand()/RAND_MAX-0.5)*(10000/10000.0);
+  nloops+=25000;
+  if (nloops>35000) 
+  {
+    nloops=35000;
+  }
+  // //now, use a fixed value for randomization
+  //nloops=25000;
+  model->qpos_spring[41]=0.49+0.00005*(rand()%200-100)*(nloops/10000.0);
+  for (int i=0;i<model->njnt;i++)
+  {
+    if (model->jnt_stiffness[i]==20000)
+    {
+      model->jnt_stiffness[i]=20000+10.0*(rand()%200-100)*(nloops/10000.0);
+    }
+  }
   // set initial qpos, qvel in mujoco
   if(!mujoco_set_const(model, data, qInit, alphaInit))
   {
@@ -375,6 +395,38 @@ void MjSimImpl::setSimulationInitialState()
 
 void MjSimImpl::startSimulation()
 {
+  //mc_rtc::Configuration NLoops_cfg("/home/templarares/devel/src/bit-car-inout-controller/etc/NLoops.yaml");
+  //mc_rtc::Configuration NLoops_cfg;
+  //int nloops=(int)NLoops_cfg("counter");
+  // if(init_pose_cfg.has("initial_pose_rand"))
+  // {
+  //   robot().posW(init_pose_cfg("initial_pose_rand"));
+  // }
+  // else if(init_pose_cfg.has("initial_pose"))
+  // {
+  //   robot().posW(init_pose_cfg("initial_pose"));
+  // }
+  
+  //note sure how to automaticall get id for joint springCar. the id 41 was through trial-and-error
+  // int id=mj_name2id(model,mjOBJ_JOINT,"springCar");
+  // for (int i=41;i<model->nq;i++)
+  // {
+  //   model->qpos_spring[i]=2.5;
+  // }
+  // model->qpos_spring[model->jnt_qposadr[id]]=2.5;
+  // model->qpos_spring[model->jnt_dofadr[id]]=2.5;
+  
+  //model->qpos_spring[41]=1.215+0.02*(random()/RAND_MAX-0.5)*(nloops/10000.0+1.0);
+  // for (int i=0; i<model->njnt;i++)
+  // {
+  //   if ((model->names+model->name_jntadr[i])=="springCar")
+  //   {
+  //     model->jnt_stiffness[i]=100.0;
+  //   }
+    
+  // }
+  //model->jnt_stiffness[41]=2000;
+  //model->qpos_spring[41]=1.195;
   setSimulationInitialState();
   if(!config.with_controller)
   {
@@ -587,6 +639,14 @@ void MjSimImpl::resetSimulation(const std::map<std::string, std::vector<double>>
       robot.reset(controller->robot(robot.name));
     }
   }
+
+  // for (int i=0;i<model->njnt;i++)
+  // {
+  //   if (model->jnt_stiffness[i]==8000)
+  //   {
+  //     model->jnt_stiffness[i]=8000+1000*(random()/RAND_MAX-0.5)*(10000/10000.0);
+  //   }
+  // }
   mj_resetData(model, data);
   setSimulationInitialState();
 }
