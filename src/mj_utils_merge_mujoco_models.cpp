@@ -497,6 +497,12 @@ std::string merge_mujoco_models(const std::vector<std::string> & robots,
     merge_mujoco_model(robots[i], xmlFiles[i], out);
     mjRobots.push_back(mj_robot_from_xml(robots[i], xmlFiles[i], robots[i]));
   }
+  // pugi::xml_document extra;
+  // if(!extra.load_file("/home/templarares/devel/src/JumpingControllerRy/etc/extraMujoco.xml"))
+  // {
+  //   mc_rtc::log::error_and_throw<std::runtime_error>("Failed to load extra Mujoco file ");
+  // }
+  // out.append_copy(extra.child("contact"));
   {
     std::ofstream ofs(outFile);
     out_doc.save(ofs, "    ");

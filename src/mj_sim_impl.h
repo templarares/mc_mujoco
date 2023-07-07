@@ -101,11 +101,14 @@ struct MjRobot
   std::vector<double> mj_prev_ctrl_q;
   /** Previous velocity desired by mc_rtc */
   std::vector<double> mj_prev_ctrl_alpha;
+  /** Previous torque desired by mc_rt */
+  std::vector<double> mj_prev_ctrl_torque;
   /** Next position desired by mc_rtc */
   std::vector<double> mj_next_ctrl_q;
   /** Next velocity desired by mc_rtc */
   std::vector<double> mj_next_ctrl_alpha;
-
+  /** Next velocity desired by mc_rtc */
+  std::vector<double> mj_next_ctrl_torque;
   /** Initialize some data after the simulation has started */
   void initialize(mjModel * model, const mc_rbdyn::Robot & robot);
 
