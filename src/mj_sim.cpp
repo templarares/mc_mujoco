@@ -505,6 +505,7 @@ void MjRobot::updateControl(const mc_rbdyn::Robot & robot)
 
 void MjRobot::sendControl(const mjModel & model, mjData & data, size_t interp_idx, size_t frameskip_)
 {
+
   for(size_t i = 0; i < mj_ctrl.size(); ++i)
   {
     auto mot_id = mj_mot_ids[i];
@@ -562,6 +563,7 @@ bool MjSimImpl::controlStep()
     }
   }
   // On each control iter
+
   for(auto & r : robots)
   {
     r.sendControl(*model, *data, interp_idx, frameskip_);
@@ -576,10 +578,20 @@ void MjSimImpl::simStep()
   mju_zero(data->xfrc_applied, 6 * model->nbody);
   mjv_applyPerturbPose(model, data, &pert, 0); // move mocap bodies only
   mjv_applyPerturbForce(model, data, &pert);
-
   // take one step in simulation
   // model.opt.timestep will be used here
+  const auto & robot = controller->robots().robot("bit_humanoid");
+  const auto & t = robot.posW().translation();
+  data->qpos[ 0] = t.x();
+  data->qpos[ 1] = t.y();
+  data->qpos[ 2] = t.z();
+  Eigen::Quaterniond q = Eigen::Quaterniond(robot.posW().rotation()).inverse();
+  data->qpos[ 3] = q.w();
+  data->qpos[ 4] = q.x();
+  data->qpos[ 5] = q.y();
+  data->qpos[ 6] = q.z();
   mj_step(model, data);
+
 }
 
 void MjSimImpl::resetSimulation(const std::map<std::string, std::vector<double>> & reset_qs,
@@ -656,7 +668,6 @@ void MjSimImpl::updateScene()
   // update scene and render
   std::lock_guard<std::mutex> lock(rendering_mutex_);
   mjv_updateScene(model, data, &options, &pert, &camera, mjCAT_ALL, &scene);
-
   if(client)
   {
     client->updateScene(scene);
