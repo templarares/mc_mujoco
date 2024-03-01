@@ -200,6 +200,7 @@ void MjRobot::initialize(mjModel * model, const mc_rbdyn::Robot & robot)
   for(const auto & j : mj_jnt_names)
   {
     mj_jnt_ids.push_back(mj_name2id(model, mjOBJ_JOINT, j.c_str()));
+    mc_rtc::log::warning("{} corresponding to {}",j.c_str(),mj_name2id(model, mjOBJ_JOINT, j.c_str()));
   }
   auto fill_acuator_ids = [&](const std::vector<std::string> & names, std::vector<int> & ids) {
     ids.resize(0);
@@ -208,6 +209,7 @@ void MjRobot::initialize(mjModel * model, const mc_rbdyn::Robot & robot)
       if(n.size())
       {
         ids.push_back(mj_name2id(model, mjOBJ_ACTUATOR, n.c_str()));
+        mc_rtc::log::warning("{} corresponding to {}",n.c_str(),mj_name2id(model, mjOBJ_ACTUATOR, n.c_str()));
       }
       else
       {
@@ -525,13 +527,19 @@ void MjRobot::sendControl(const mjModel & model, mjData & data, size_t interp_id
       mj_ctrl[i] = PD(i, q_ref, encoders[rjo_id], alpha_ref, alphas[rjo_id]);
       double ratio = model.actuator_gear[6 * mot_id];
       data.ctrl[mot_id] = mj_ctrl[i] / ratio;
+      // mc_rtc::log::warning("motor {} target_q is {}",mot_id,q_ref);
+      // mc_rtc::log::warning("motor {} ratio is {}",mot_id,ratio);
+      // mc_rtc::log::warning("motor {} actual_q is {}",mot_id,encoders[rjo_id]);      
+      // mc_rtc::log::warning("motor {} target_torque set to {}",mot_id,mj_ctrl[i] / ratio);
     }
     if(pos_act_id != -1)
     {
+      mc_rtc::log::warning("motol {} target_q set to {}",pos_act_id,q_ref);
       data.ctrl[pos_act_id] = q_ref;
     }
     if(vel_act_id != -1)
     {
+      mc_rtc::log::warning("motol {} target_alpha set to {}",vel_act_id,alpha_ref);
       data.ctrl[vel_act_id] = alpha_ref;
     }
   }
