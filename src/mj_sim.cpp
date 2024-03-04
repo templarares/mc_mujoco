@@ -22,6 +22,9 @@ namespace bfs = boost::filesystem;
 
 #include <mc_rtc/version.h>
 
+//prev posW locations, check if mc_rtc teleported horizontally
+double prevX, prevY, prevZ;
+
 namespace mc_mujoco
 {
 
@@ -580,16 +583,25 @@ void MjSimImpl::simStep()
   mjv_applyPerturbForce(model, data, &pert);
   // take one step in simulation
   // model.opt.timestep will be used here
-  const auto & robot = controller->robots().robot("bit_humanoid");
-  const auto & t = robot.posW().translation();
-  data->qpos[ 0] = t.x();
-  data->qpos[ 1] = t.y();
-  data->qpos[ 2] = t.z();
-  Eigen::Quaterniond q = Eigen::Quaterniond(robot.posW().rotation()).inverse();
-  data->qpos[ 3] = q.w();
-  data->qpos[ 4] = q.x();
-  data->qpos[ 5] = q.y();
-  data->qpos[ 6] = q.z();
+
+  // //if horizontal teleportation is detected in mc_rtc, sync it in mujoco
+  // const auto & robot = controller->robots().robot("bit_humanoid");
+  // const auto & t = robot.posW().translation();
+  // if (abs(prevZ-t.z())<0.001&&(abs(prevX-t.x())>0.005||abs(prevY-t.y())>0.005))
+  //   {
+    
+  //   data->qpos[ 0] = t.x();
+  //   data->qpos[ 1] = t.y();
+  //   data->qpos[ 2] = t.z();
+  //   Eigen::Quaterniond q = Eigen::Quaterniond(robot.posW().rotation()).inverse();
+  //   data->qpos[ 3] = q.w();
+  //   data->qpos[ 4] = q.x();
+  //   data->qpos[ 5] = q.y();
+  //   data->qpos[ 6] = q.z();
+  // }
+  // prevX=t.x();
+  // prevY=t.y();
+  // prevZ=t.z();
   mj_step(model, data);
 
 }
